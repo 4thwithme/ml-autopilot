@@ -12,14 +12,8 @@ export function draw(
       width: canvas.width * 0.9,
       laneCount: 5,
     });
-    const car = new CarMain({
-      x: road.getLaneCenter(3),
-      y: 600,
-      width: 30,
-      height: 50,
-    });
 
-    const traffic = [
+    const traffic: Car[] = [
       new Car({
         x: road.getLaneCenter(1),
         y: 200,
@@ -40,19 +34,26 @@ export function draw(
       }),
     ];
 
+    const car = new CarMain({
+      x: road.getLaneCenter(3),
+      y: 600,
+      width: 30,
+      height: 50,
+    });
+
     animation();
 
     // TODO:
-    // car extends
     // check types
     // use arr methods
     // check animation frame
     // add and delete car after some actions
 
     function animation() {
-      car.updateMainCar({ borders: road.borders });
-
-      traffic.forEach((car) => car.update());
+      traffic.forEach((car) =>
+        car.update({ borders: road.borders, traffic: [] })
+      );
+      car.updateMainCar({ borders: road.borders, traffic });
 
       canvas.height = window.innerHeight;
 
@@ -60,8 +61,8 @@ export function draw(
       ctx?.translate(0, -car.y + canvas.height * 0.8);
 
       road.draw(ctx as CanvasRenderingContext2D);
-      car.draw(ctx as CanvasRenderingContext2D);
       traffic.forEach((car) => car.draw(ctx as CanvasRenderingContext2D));
+      car.draw(ctx as CanvasRenderingContext2D);
 
       requestAnimationFrame(animation);
     }

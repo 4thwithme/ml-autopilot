@@ -1,6 +1,5 @@
 import { Borders } from "./road";
 import { Sensors } from "./sensors";
-import { polysIntersect } from "./utils";
 import { Car, ICar } from "./car";
 
 export enum Key {
@@ -15,21 +14,15 @@ export class CarMain extends Car {
 
   constructor(args: ICar) {
     super(args);
+    this.forward = false;
+    this.maxSpeed = 4;
+    this.acceleration = this.friction * 3;
     this.addControlListeners();
     this.sensors = new Sensors({
       rayCount: 7,
       rayLength: 100,
       raySpread: Math.PI,
     });
-  }
-
-  private assessDamage({ borders }: { borders: Borders }): boolean {
-    for (let i = 0; i < borders.length; i++) {
-      if (polysIntersect(this.polygon, borders[i])) {
-        return true;
-      }
-    }
-    return false;
   }
 
   private addControlListeners() {
@@ -80,15 +73,21 @@ export class CarMain extends Car {
     });
   }
 
-  public updateMainCar({ borders }: { borders: Borders }): void {
-    super.update();
+  public updateMainCar({
+    borders,
+    traffic,
+  }: {
+    borders: Borders;
+    traffic: Car[];
+  }): void {
+    super.update({ borders, traffic });
     this.sensors.update({
       carAngle: this.angle,
       carX: this.x,
       carY: this.y,
       borders,
+      traffic,
     });
-    this.damaged = this.assessDamage({ borders });
   }
 
   public draw(ctx: CanvasRenderingContext2D): void {
@@ -97,7 +96,7 @@ export class CarMain extends Car {
     } else {
       ctx.fillStyle = "black";
     }
-    super.draw(ctx, true);
     this.sensors.draw(ctx as CanvasRenderingContext2D);
+    super.draw(ctx, true);
   }
 }

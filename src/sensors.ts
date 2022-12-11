@@ -1,3 +1,4 @@
+import { Car } from "./car";
 import { Borders, XY } from "./road";
 import { getIntersection, lerp } from "./utils";
 
@@ -31,16 +32,18 @@ export class Sensors {
     carX,
     carY,
     borders,
+    traffic,
   }: {
     carAngle: number;
     carX: number;
     carY: number;
     borders: Borders;
+    traffic: Car[];
   }) {
     this.castRays({ carAngle, carX, carY });
     this.readings = {};
     for (let i = 0; i < this.rays.length; i++) {
-      const reading = this.getReading({ ray: this.rays[i], borders });
+      const reading = this.getReading({ ray: this.rays[i], borders, traffic });
 
       if (reading) {
         this.readings[i] = reading;
@@ -51,9 +54,11 @@ export class Sensors {
   private getReading({
     ray,
     borders,
+    traffic,
   }: {
     ray: Ray;
     borders: Borders;
+    traffic: Car[];
   }): (XY & { offset: number }) | null {
     const touches: (XY & { offset: number })[] = [];
 
@@ -67,6 +72,21 @@ export class Sensors {
 
       if (touch && ray[0].x >= borders[0][0].x && ray[0].x <= borders[1][0].x) {
         touches.push(touch);
+      }
+    }
+
+    for (let i = 0; i < traffic.length; i++) {
+      const poly = traffic[i].polygon;
+      for (let j = 0; j < poly.length; j++) {
+        const value = getIntersection(
+          ray[0],
+          ray[1],
+          poly[j],
+          poly[(j + 1) % poly.length]
+        );
+        if (value) {
+          touches.push(value);
+        }
       }
     }
 

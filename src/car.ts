@@ -1,4 +1,5 @@
-import { XY } from "./road";
+import { polysIntersect } from "./utils";
+import { Borders, XY } from "./road";
 
 export interface ICar {
   x: number;
@@ -17,16 +18,16 @@ export class Car {
 
   private speed: number;
   public angle: number;
-  private maxSpeed: number;
+  protected maxSpeed: number;
   private turnRate: number;
-  private friction: number;
-  private acceleration: number;
+  protected friction: number;
+  protected acceleration: number;
   protected forward: boolean;
   protected backward: boolean;
   protected left: boolean;
   protected right: boolean;
   protected damaged: boolean;
-  protected polygon: XY[];
+  public polygon: XY[];
   private color: string;
 
   constructor({ x, y, width, height }: ICar) {
@@ -37,14 +38,14 @@ export class Car {
     this.height = height;
 
     // controls
-    this.forward = false;
+    this.forward = true;
     this.backward = false;
     this.left = false;
     this.right = false;
 
     // movements
     this.speed = 0;
-    this.maxSpeed = 4;
+    this.maxSpeed = 2 + Math.random();
     this.friction = 0.03;
     this.acceleration = this.friction * 2;
     this.turnRate = 0.06;
@@ -84,6 +85,26 @@ export class Car {
     return points;
   }
 
+  private assessDamage({
+    borders,
+    traffic,
+  }: {
+    borders: Borders;
+    traffic: Car[];
+  }): boolean {
+    for (let i = 0; i < borders.length; i++) {
+      if (polysIntersect(this.polygon, borders[i])) {
+        return true;
+      }
+    }
+    for (let i = 0; i < traffic.length; i++) {
+      if (polysIntersect(this.polygon, traffic[i].polygon)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private move() {
     if (this.forward) this.speed = this.speed + this.acceleration;
     if (this.backward) this.speed = this.speed - this.acceleration;
@@ -113,10 +134,17 @@ export class Car {
     this.y = this.y - Math.cos(this.angle) * this.speed;
   }
 
-  public update(): void {
+  public update({
+    borders,
+    traffic,
+  }: {
+    borders: Borders;
+    traffic: Car[];
+  }): void {
     if (!this.damaged) {
       this.move();
       this.polygon = this.createPolygon();
+      this.damaged = this.assessDamage({ borders, traffic });
     }
   }
 
