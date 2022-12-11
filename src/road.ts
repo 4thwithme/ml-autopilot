@@ -5,8 +5,9 @@ interface IRoad {
   width: number;
   laneCount: number;
 }
+export type Borders = [[XY, XY], [XY, XY]];
 
-interface XY {
+export interface XY {
   x: number;
   y: number;
 }
@@ -21,7 +22,7 @@ export class Road {
   width: number;
   laneCount: number;
 
-  borders: [[XY, XY], [XY, XY]];
+  borders: Borders;
 
   constructor({ x, width, laneCount }: IRoad) {
     this.x = x;
