@@ -28,7 +28,7 @@ export function draw(
       }),
       new Car({
         x: road.getLaneCenter(2),
-        y: 100,
+        y: 300,
         width: 40,
         height: 100,
       }),
@@ -50,10 +50,9 @@ export function draw(
     // add and delete car after some actions
 
     function animation() {
-      const bor = { borders: road.borders };
-      car.update(bor);
+      car.updateMainCar({ borders: road.borders });
 
-      traffic.forEach((car) => car.update(bor));
+      traffic.forEach((car) => car.update());
 
       canvas.height = window.innerHeight;
 

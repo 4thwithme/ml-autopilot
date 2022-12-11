@@ -80,8 +80,8 @@ export class CarMain extends Car {
     });
   }
 
-  public update({ borders }: { borders: Borders }): void {
-    super.update({ borders });
+  public updateMainCar({ borders }: { borders: Borders }): void {
+    super.update();
     this.sensors.update({
       carAngle: this.angle,
       carX: this.x,

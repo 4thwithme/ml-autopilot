@@ -1,4 +1,4 @@
-import { Borders, XY } from "./road";
+import { XY } from "./road";
 
 export interface ICar {
   x: number;
@@ -113,7 +113,7 @@ export class Car {
     this.y = this.y - Math.cos(this.angle) * this.speed;
   }
 
-  public update({ borders }: { borders: Borders }): void {
+  public update(): void {
     if (!this.damaged) {
       this.move();
       this.polygon = this.createPolygon();
