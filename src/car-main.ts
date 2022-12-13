@@ -1,6 +1,7 @@
 import { Borders } from "./road";
 import { Sensors } from "./sensors";
 import { Car, ICar } from "./car";
+import { Network } from "./network";
 
 export enum Key {
   LEFT = "ArrowLeft",
@@ -9,20 +10,37 @@ export enum Key {
   BACKWARD = "ArrowDown",
 }
 
+export enum ControlType {
+  KEYS = "KEYS",
+  AI = "AI",
+}
+
+interface ISensors {
+  rayCount: number;
+  rayLength: number;
+  raySpread: number;
+}
+
 export class CarMain extends Car {
   private sensors: Sensors;
+  public network: Network;
+  controlType: ControlType;
 
-  constructor(args: ICar) {
+  constructor(args: ICar & ISensors & { controlType: ControlType }) {
     super(args);
     this.forward = false;
-    this.maxSpeed = 4;
+    this.maxSpeed = 3;
     this.acceleration = this.friction * 3;
-    this.addControlListeners();
+    this.controlType = args.controlType;
+    if (args.controlType === ControlType.KEYS) {
+      this.addControlListeners();
+    }
     this.sensors = new Sensors({
-      rayCount: 7,
-      rayLength: 100,
-      raySpread: Math.PI,
+      rayCount: args.rayCount,
+      rayLength: args.rayLength,
+      raySpread: args.raySpread,
     });
+    this.network = new Network({ neuronCounts: [args.rayCount, 20, 4] });
   }
 
   private addControlListeners() {
@@ -88,6 +106,21 @@ export class CarMain extends Car {
       borders,
       traffic,
     });
+    const offsets = Object.values(this.sensors.readings).map((s) =>
+      !!s.offset ? 1 - s.offset : 0
+    );
+
+    const outputs = Network.feedForward({
+      network: this.network,
+      givenInputs: offsets,
+    });
+
+    if (this.controlType === ControlType.AI) {
+      this.forward = !!outputs[0];
+      this.left = !!outputs[1];
+      this.right = !!outputs[2];
+      this.backward = !!outputs[3];
+    }
   }
 
   public draw(ctx: CanvasRenderingContext2D): void {

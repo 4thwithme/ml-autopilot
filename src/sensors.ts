@@ -17,7 +17,7 @@ export class Sensors {
   private rayLength: number;
   private raySpread: number;
   public rays: IRays;
-  private readings: Record<string, XY & { offset: number }>;
+  public readings: Record<string, XY & { offset: number }>;
 
   constructor({ rayCount, rayLength, raySpread }: ISensors) {
     this.rayCount = rayCount;
