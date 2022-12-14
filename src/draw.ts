@@ -15,7 +15,7 @@ export function draw(
     const cars = makeGeneration({ N: 100, road });
 
     const traffic = makeTraffic({ road });
-    addListeners({ bestCar });
+
     doMutation({ cars });
     animation({
       traffic,
@@ -58,6 +58,8 @@ function animation({
     return res;
   }, cars[0]);
 
+  addListeners({ bestCar });
+
   const count = cars.reduce((sum, car) => (car.damaged ? sum : sum + 1), 0);
 
   const carsDiv = document.querySelector("#cars");
@@ -95,9 +97,9 @@ function makeGeneration({ N, road }: { N: number; road: Road }): CarMain[] {
       y: 600,
       width: 30,
       height: 50,
-      rayCount: 9,
+      rayCount: 5,
       rayLength: 100,
-      raySpread: 1.2 * Math.PI,
+      raySpread: Math.PI / 2,
       controlType: ControlType.AI,
     });
   });
@@ -162,7 +164,7 @@ function doMutation({ cars }: { cars: CarMain[] }): void {
     for (let i = 0; i < cars.length; i++) {
       cars[i].network = JSON.parse(lsPrevBestNetwork);
       if (i != 0) {
-        Network.mutate({ network: cars[i].network, mutation: 0.3 });
+        Network.mutate({ network: cars[i].network, mutation: 0.2 });
       }
     }
   }
