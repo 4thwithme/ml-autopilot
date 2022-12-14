@@ -1,5 +1,5 @@
-import { polysIntersect } from "./utils";
-import { Borders, XY } from "./road";
+import { XY } from "./road";
+import carImg from "../img/11.png";
 
 export interface ICar {
   x: number;
@@ -8,11 +8,12 @@ export interface ICar {
   height: number;
 }
 
-const COLORS = ["red", "blue", "orange", "white", "green", "olive"];
+const img = new Image();
+img.src = carImg;
 
 export class Car {
-  private width: number;
-  private height: number;
+  public width: number;
+  public height: number;
   public x: number;
   public y: number;
 
@@ -26,9 +27,8 @@ export class Car {
   protected backward: boolean;
   protected left: boolean;
   protected right: boolean;
-  protected damaged: boolean;
+  public damaged: boolean;
   public polygon: XY[];
-  private color: string;
 
   constructor({ x, y, width, height }: ICar) {
     // size
@@ -45,16 +45,11 @@ export class Car {
 
     // movements
     this.speed = 0;
-    this.maxSpeed = 2 + Math.random();
+    this.maxSpeed = 4;
     this.friction = 0.03;
     this.acceleration = this.friction * 2;
-    this.turnRate = 0.06;
+    this.turnRate = 0.08;
     this.angle = 0;
-    this.color = `rgb(
-      ${Math.floor(Math.random() * 256)},
-      ${Math.floor(Math.random() * 256)},
-      ${Math.floor(Math.random() * 256)})
-    `;
 
     // info
     this.damaged = false;
@@ -83,26 +78,6 @@ export class Car {
     });
 
     return points;
-  }
-
-  private assessDamage({
-    borders,
-    traffic,
-  }: {
-    borders: Borders;
-    traffic: Car[];
-  }): boolean {
-    for (let i = 0; i < borders.length; i++) {
-      if (polysIntersect(this.polygon, borders[i])) {
-        return true;
-      }
-    }
-    for (let i = 0; i < traffic.length; i++) {
-      if (polysIntersect(this.polygon, traffic[i].polygon)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   private move() {
@@ -134,29 +109,24 @@ export class Car {
     this.y = this.y - Math.cos(this.angle) * this.speed;
   }
 
-  public update({
-    borders,
-    traffic,
-  }: {
-    borders: Borders;
-    traffic: Car[];
-  }): void {
-    if (!this.damaged) {
-      this.move();
-      this.polygon = this.createPolygon();
-      this.damaged = this.assessDamage({ borders, traffic });
-    }
+  public update(): void {
+    this.move();
+    this.polygon = this.createPolygon();
   }
 
   public draw(ctx: CanvasRenderingContext2D, skipColor?: boolean): void {
     if (!skipColor) {
-      ctx.fillStyle = this.color;
+      ctx.drawImage(
+        img,
+        0,
+        0,
+        500,
+        1007,
+        this.polygon[0].x - 30,
+        this.polygon[0].y,
+        30,
+        50
+      );
     }
-    ctx.beginPath();
-    ctx.moveTo(this.polygon[0].x, this.polygon[0].y);
-    for (let i = 1; i < this.polygon.length; i++) {
-      ctx.lineTo(this.polygon[i].x, this.polygon[i].y);
-    }
-    ctx.fill();
   }
 }

@@ -9,3 +9,25 @@ body {
 #canvas {
   background: rgb(210, 210, 210);
 }
+
+#cars {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  font-size: 100px;
+}
+
+#save {
+  position: absolute;
+  left: 20px;
+  bottom: 80px;
+  font-size: 30px;
+  cursor: pointer;
+}
+#reset {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  font-size: 30px;
+  cursor: pointer;
+}

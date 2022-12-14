@@ -3,7 +3,6 @@ import { draw } from "./draw";
 
 const CANVAS = "canvas";
 const CONTEXT = "2d";
-const SAVE = "save";
 
 // try {
 const makeId = (str: string) => `#${str}`;
